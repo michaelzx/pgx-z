@@ -3,4 +3,5 @@ package gen
 type Config struct {
 	PgDSN     string
 	OutputDir string
+	PkgName   string
 }
