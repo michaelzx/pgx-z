@@ -1,5 +1,5 @@
 package gen
 
-func Gen(cfg Config) {
+func New(cfg Config) {
 
 }
