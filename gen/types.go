@@ -1,10 +1,13 @@
 package gen
 
+import "time"
+
 type table struct {
-	NameForDb string   `db:"table_name"`
-	NameForGo string   `db:"-"`
-	Columns   []column `db:"-"`
-	Imports   []string `db:"-"`
+	NameForDb string    `db:"table_name"`
+	NameForGo string    `db:"-"`
+	Columns   []column  `db:"-"`
+	Imports   []string  `db:"-"`
+	NowTime   time.Time `db:"-"`
 }
 type column struct {
 	NameForDb   string  `db:"column_name"`

@@ -13,6 +13,7 @@ import (
 	"path/filepath"
 	"strings"
 	"text/template"
+	"time"
 )
 
 type Gen struct {
@@ -30,7 +31,10 @@ func New(cfg Config) {
 		fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
 		os.Exit(1)
 	}
-	defer g.conn.Close(context.TODO())
+	defer func() {
+		g.conn.Close(context.TODO())
+		fmt.Println("success")
+	}()
 	g.getTables()
 	g.getColumns()
 	g.genModels()
@@ -51,7 +55,7 @@ where table_schema='public'`)
 		tableRows[i].NameForGo = strcase.ToCamel(row.NameForDb)
 	}
 	g.Tables = tableRows
-	fmt.Println("tables", g.Tables)
+	// fmt.Println("tables", g.Tables)
 }
 
 func (g *Gen) getColumns() {
@@ -81,15 +85,19 @@ WHERE table_name=$1 order by ordinal_position`, t.NameForDb)
 			cols[colIdx].TypeForGo = goType
 		}
 		g.Tables[tIdx].Columns = cols
-		fmt.Println("tables", cols)
+		// fmt.Println("tables", cols)
 	}
 }
 
 func (g *Gen) genModels() {
 	for _, tbl := range g.Tables {
+		fmt.Println("gen", "model."+tbl.NameForGo, "...")
 		tmpl := template.Must(
 			template.New("test").Parse(gen_tpl.Model),
 		)
+
+		tbl.NowTime = time.Now()
+
 		var b bytes.Buffer
 		w := bufio.NewWriter(&b)
 		err := tmpl.ExecuteTemplate(w, "test", tbl)
@@ -112,14 +120,19 @@ func (g *Gen) genModels() {
 }
 func (g *Gen) genCols() {
 	for _, tbl := range g.Tables {
+		fmt.Println("gen", "col."+tbl.NameForGo, "...")
 		tmpl := template.Must(
 			template.New("test").Parse(gen_tpl.Col),
 		)
-		var b bytes.Buffer
-		w := bufio.NewWriter(&b)
+
 		modelImport := filepath.Join(g.PkgName, g.OutputDir, "model")
 		modelImport = strings.ReplaceAll(modelImport, "\\", "/")
 		tbl.Imports = append(tbl.Imports, modelImport)
+		tbl.Imports = append(tbl.Imports, "github.com/michaelzx/pgx-z/pgxz")
+		tbl.NowTime = time.Now()
+
+		var b bytes.Buffer
+		w := bufio.NewWriter(&b)
 		err := tmpl.ExecuteTemplate(w, "test", tbl)
 		if err != nil {
 			panic(err)
