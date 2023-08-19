@@ -82,6 +82,9 @@ WHERE table_name=$1 order by ordinal_position`, t.NameForDb)
 			if strings.Contains(goType, "pgtype") {
 				g.Tables[tIdx].Imports = append(g.Tables[tIdx].Imports, "github.com/jackc/pgx/v5/pgtype")
 			}
+			if strings.Contains(goType, "time.Time") {
+				g.Tables[tIdx].Imports = append(g.Tables[tIdx].Imports, "time")
+			}
 			cols[colIdx].TypeForGo = goType
 		}
 		g.Tables[tIdx].Columns = cols

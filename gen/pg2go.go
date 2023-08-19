@@ -51,12 +51,12 @@ func pg2go(udt string) string {
 		// return "time.Time"
 	case "pg_catalog.timetz":
 		return "time.Time"
-	case "pg_catalog.timestamp":
-		return "pgtype.Timestamp"
-		// return "time.Time"
+	case "pg_catalog.timestamp", "timestamp":
+		return "time.Time"
+		// return "pgtype.Timestamp"
 	case "pg_catalog.timestamptz", "timestamptz":
-		return "pgtype.Timestamptz"
-		// return "time.Time"
+		return "time.Time"
+		// return "pgtype.Timestamptz"
 	case "text", "varchar", "pg_catalog.varchar", "pg_catalog.bpchar", "string", "citext":
 		return "string"
 	case "uuid":
