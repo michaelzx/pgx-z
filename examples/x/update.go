@@ -2,8 +2,8 @@ package x
 
 import (
 	"context"
-	"github.com/michaelzx/pgx-z/examples/tmp/col"
-	"github.com/michaelzx/pgx-z/examples/tmp/model"
+	"github.com/michaelzx/pgx-z/examples/internal/col"
+	"github.com/michaelzx/pgx-z/examples/internal/model"
 	"github.com/michaelzx/pgx-z/pgxz"
 	"time"
 )
