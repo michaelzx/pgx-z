@@ -13,7 +13,6 @@ import (
 	"path/filepath"
 	"strings"
 	"text/template"
-	"time"
 )
 
 type Gen struct {
@@ -99,8 +98,6 @@ func (g *Gen) genModels() {
 			template.New("test").Parse(gen_tpl.Model),
 		)
 
-		tbl.NowTime = time.Now()
-
 		var b bytes.Buffer
 		w := bufio.NewWriter(&b)
 		err := tmpl.ExecuteTemplate(w, "test", tbl)
@@ -132,7 +129,6 @@ func (g *Gen) genCols() {
 		modelImport = strings.ReplaceAll(modelImport, "\\", "/")
 		tbl.Imports = append(tbl.Imports, modelImport)
 		tbl.Imports = append(tbl.Imports, "github.com/michaelzx/pgx-z/pgxz")
-		tbl.NowTime = time.Now()
 
 		var b bytes.Buffer
 		w := bufio.NewWriter(&b)
