@@ -2,12 +2,17 @@ package pgxz
 
 import (
 	"context"
+	"github.com/pkg/errors"
 	"strconv"
 	"strings"
 	"time"
 )
 
 func Delete(db *PgDb, col ICol, whereSql string, whereArgs ...any) error {
+	whereSql = strings.TrimSpace(whereSql)
+	if whereSql == "" || len(whereArgs) == 0 {
+		return errors.New("whereSql or whereArgs must have value")
+	}
 	if col.HasKey("delete_at") {
 		col.Set("delete_at", time.Now())
 		return Update(db, col, whereSql, whereArgs...)

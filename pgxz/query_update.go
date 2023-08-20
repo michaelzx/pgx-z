@@ -2,12 +2,17 @@ package pgxz
 
 import (
 	"context"
+	"github.com/pkg/errors"
 	"strconv"
 	"strings"
 	"time"
 )
 
 func Update(db *PgDb, updates ICol, whereSql string, whereArgs ...any) error {
+	whereSql = strings.TrimSpace(whereSql)
+	if whereSql == "" || len(whereArgs) == 0 {
+		return errors.New("whereSql or whereArgs must have value")
+	}
 	if !updates.IsSet("delete_at") {
 		updates.Set("update_at", time.Now())
 	}

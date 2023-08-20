@@ -24,17 +24,23 @@ func GetOne[T IModel](db *PgDb, col ICol, whereSql string, whereArgs ...any) (*T
 	sql.WriteString("\"")
 
 	// where
-	sql.WriteString(" where ")
-	for _, whereArg := range whereArgs {
-		sqlArgAppend(whereArg)
-		whereSql = strings.Replace(whereSql, "?", "$"+strconv.FormatInt(sqlArgIdx, 10), 1)
-	}
-	if col.HasKey("delete_at") {
-		whereSql += " and delete_at is null"
-	}
-	sql.WriteString(whereSql)
-	if !strings.Contains(whereSql, "limit") {
-		sql.WriteString(" limit 1")
+	if strings.TrimSpace(whereSql) == "" {
+		if col.HasKey("delete_at") {
+			sql.WriteString(" where delete_at is null")
+		}
+	} else {
+		sql.WriteString(" where ")
+		if col.HasKey("delete_at") {
+			whereSql = "delete_at is null and " + whereSql
+		}
+		for _, whereArg := range whereArgs {
+			sqlArgAppend(whereArg)
+			whereSql = strings.Replace(whereSql, "?", "$"+strconv.FormatInt(sqlArgIdx, 10), 1)
+		}
+		sql.WriteString(whereSql)
+		if !strings.Contains(whereSql, "limit") {
+			sql.WriteString(" limit 1")
+		}
 	}
 	sql.WriteString(";")
 
