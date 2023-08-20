@@ -2,11 +2,26 @@ package pgxz
 
 import (
 	"context"
+	"github.com/jackc/pgx/v5"
 	"strconv"
 	"strings"
 )
 
+func CreateAndReturn[T IModel](db *PgDb, col ICol) (*T, error) {
+	sql, sqlArgs := createSqlAndArgs(col)
+	sql.WriteString(" RETURNING *;")
+	rows, _ := db.Query(context.TODO(), sql.String(), sqlArgs...)
+	return pgx.CollectOneRow(rows, pgx.RowToAddrOfStructByNameLax[T])
+}
+
 func Create(db *PgDb, col ICol) error {
+	sql, sqlArgs := createSqlAndArgs(col)
+	sql.WriteString(";")
+	_, err := db.Exec(context.TODO(), sql.String(), sqlArgs...)
+	return err
+}
+
+func createSqlAndArgs(col ICol) (*strings.Builder, []any) {
 	var sql strings.Builder
 	var sqlValue strings.Builder
 	sqlArgs := make([]any, 0)
@@ -40,7 +55,5 @@ func Create(db *PgDb, col ICol) error {
 	sql.WriteString(" ( ")
 	sql.WriteString(sqlValue.String())
 	sql.WriteString(" ) ")
-	sql.WriteString(";")
-	_, err := db.Exec(context.TODO(), sql.String(), sqlArgs...)
-	return err
+	return &sql, sqlArgs
 }
