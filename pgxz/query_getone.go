@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-func GetOne[T IModel](db *PgDb, whereSql string, whereArgs ...any) (*T, error) {
+func GetOne[T IModel](db *PgDb, col ICol, whereSql string, whereArgs ...any) (*T, error) {
 	var t T
 	var sql strings.Builder
 	sqlArgs := make([]any, 0)
@@ -28,6 +28,9 @@ func GetOne[T IModel](db *PgDb, whereSql string, whereArgs ...any) (*T, error) {
 	for _, whereArg := range whereArgs {
 		sqlArgAppend(whereArg)
 		whereSql = strings.Replace(whereSql, "?", "$"+strconv.FormatInt(sqlArgIdx, 10), 1)
+	}
+	if col.HasKey("delete_at") {
+		whereSql += " and delete_at is null"
 	}
 	sql.WriteString(whereSql)
 	if !strings.Contains(whereSql, "limit") {

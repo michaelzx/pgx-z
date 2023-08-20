@@ -18,12 +18,12 @@ type {{.NameForDb}} struct {
     pgxz.Col
 }
 
-func {{.NameForGo}}(m *model.{{.NameForGo}}) *{{.NameForDb}} {
+func {{.NameForGo}}(m ...*model.{{.NameForGo}}) *{{.NameForDb}} {
 c := new({{.NameForDb}})
 c.Init({{.NameForDb}}_KeyMap)
-if m != nil {
+if len(m) > 0 && m[0] != nil {
 {{ range .Columns -}}
-    c.SetMust("{{.NameForDb}}", m.{{.NameForGo}})
+    c.SetMust("{{.NameForDb}}", m[0].{{.NameForGo}})
 {{ end -}}
 }
 return c

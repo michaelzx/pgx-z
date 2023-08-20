@@ -7,9 +7,10 @@ import (
 	"time"
 )
 
-func Update(db *PgDb, updates ICol, whereSql string, whereArgs ...any) error {
-	if !updates.IsSet("delete_at") {
-		updates.Set("update_at", time.Now())
+func Delete(db *PgDb, col ICol, whereSql string, whereArgs ...any) error {
+	if col.HasKey("delete_at") {
+		col.Set("delete_at", time.Now())
+		return Update(db, col, whereSql, whereArgs...)
 	}
 	var sql strings.Builder
 	sqlArgs := make([]any, 0)
@@ -19,23 +20,10 @@ func Update(db *PgDb, updates ICol, whereSql string, whereArgs ...any) error {
 		sqlArgIdx++
 	}
 	// update what
-	sql.WriteString("update ")
+	sql.WriteString("delete from ")
 	sql.WriteString("\"")
-	sql.WriteString(updates.TableName())
+	sql.WriteString(col.TableName())
 	sql.WriteString("\"")
-	// set
-	sql.WriteString(" set ")
-	kIdx := 0
-	for k, v := range updates.Mapping() {
-		if kIdx != 0 {
-			sql.WriteString(",")
-		}
-		sql.WriteString(k)
-		sqlArgAppend(v)
-		sql.WriteString("=$")
-		sql.WriteString(strconv.FormatInt(sqlArgIdx, 10))
-		kIdx++
-	}
 	// where
 	sql.WriteString(" where ")
 	for _, whereArg := range whereArgs {
@@ -44,7 +32,6 @@ func Update(db *PgDb, updates ICol, whereSql string, whereArgs ...any) error {
 	}
 	sql.WriteString(whereSql)
 	sql.WriteString(";")
-
 	_, err := db.Exec(context.TODO(), sql.String(), sqlArgs...)
 	return err
 }

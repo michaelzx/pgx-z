@@ -15,6 +15,7 @@ type ICol interface {
 	setMustKey(fn string, v any)
 	Keys() []string
 	HasKey(k string) bool
+	IsSet(k string) bool
 	Mapping() map[string]any
 }
 
@@ -48,6 +49,10 @@ func (c *Col) setMustKey(fn string, v any) {
 
 func (c *Col) HasKey(key string) bool {
 	_, exists := c.keyMap[key]
+	return exists
+}
+func (c *Col) IsSet(key string) bool {
+	_, exists := c.mapping[key]
 	return exists
 }
 

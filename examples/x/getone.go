@@ -3,6 +3,7 @@ package x
 import (
 	"context"
 	"github.com/jackc/pgx/v5"
+	"github.com/michaelzx/pgx-z/examples/internal/col"
 	"github.com/michaelzx/pgx-z/examples/internal/model"
 	"github.com/michaelzx/pgx-z/pgxz"
 )
@@ -15,7 +16,7 @@ func GetOneByPgx() {
 	}
 }
 func GetOneByPgxZ() {
-	_, err := pgxz.GetOne[model.DingDept](db, "id=?", 835586072)
+	_, err := pgxz.GetOne[model.DingDept](db, col.DingDept(), "id=?", 835586072)
 	if err != nil {
 		panic(err)
 	}

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/michaelzx/pgx-z/examples/internal/col"
 	"github.com/michaelzx/pgx-z/examples/internal/model"
 	"github.com/michaelzx/pgx-z/pgxz"
 	"os"
@@ -23,7 +24,7 @@ func init() {
 
 }
 func main() {
-	user, err := pgxz.GetOne[model.User](db, "no=?", "cjdgoostla5k7f1kjc8g")
+	user, err := pgxz.GetOne[model.User](db, col.User(), "no=?", "cjdgoostla5k7f1kjc8g")
 	if err != nil {
 		panic(err)
 	}

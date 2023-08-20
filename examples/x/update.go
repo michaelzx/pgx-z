@@ -16,7 +16,7 @@ func UpdateByPgx() {
 }
 func UpdateByPgxZ() {
 	pgxz.Update(db,
-		col.Team(nil).
+		col.Team().
 			Title("测试团队-"+time.Now().String()),
 		"no=?", "cjh2vh9u4b8i8e3jnigg",
 	)
