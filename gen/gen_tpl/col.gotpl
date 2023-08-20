@@ -12,16 +12,18 @@ package col
     )
 {{end}}
 
+var _ pgxz.ICol = new({{.NameForDb}})
+
 type {{.NameForDb}} struct {
     pgxz.Col
 }
 
 func {{.NameForGo}}(m *model.{{.NameForGo}}) *{{.NameForDb}} {
 c := new({{.NameForDb}})
-c.Init()
+c.Init({{.NameForDb}}_KeyMap)
 if m != nil {
 {{ range .Columns -}}
-    c.SetIfNotNil("{{.NameForDb}}", m.{{.NameForGo}})
+    c.SetMust("{{.NameForDb}}", m.{{.NameForGo}})
 {{ end -}}
 }
 return c
@@ -45,3 +47,9 @@ return []string{
     return r
     }
 {{end}}
+
+var {{.NameForDb}}_KeyMap = pgxz.KyeMap{
+{{ range .Columns -}}
+    "{{.NameForDb}}":           struct{}{},
+{{ end -}}
+}

@@ -26,7 +26,7 @@ func init() {
 func main() {
 	_ = pgxz.Update(db,
 		col.User(nil).
-			RealName("zxp"+time.Now().Format(time.DateTime)),
+			RealName("zxp"+time.Now().Format(time.RFC3339)),
 		"no=?", "cjdgoostla5k7f1kjc8g",
 	)
 }

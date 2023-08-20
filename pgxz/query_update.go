@@ -4,9 +4,11 @@ import (
 	"context"
 	"strconv"
 	"strings"
+	"time"
 )
 
 func Update(db *PgDb, updates ICol, whereSql string, whereArgs ...any) error {
+	updates.Set("update_at", time.Now())
 	var sql strings.Builder
 	sqlArgs := make([]any, 0)
 	var sqlArgIdx int64
