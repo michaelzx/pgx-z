@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/michaelzx/pgx-z/examples/tmp/col"
+	"github.com/michaelzx/pgx-z/examples/internal/col"
 	"github.com/michaelzx/pgx-z/pgxz"
 	"os"
 	"time"
