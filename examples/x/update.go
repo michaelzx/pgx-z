@@ -12,18 +12,18 @@ func UpdateByPgx() {
 	db.Exec(context.TODO(), "update team set title=$1,update_at=$2 where no=$3",
 		"测试团队-"+time.Now().String(),
 		time.Now(),
-		"cjh2vh9u4b8i8e3jnigg")
+		"cjhf63ctla5rq43743o0")
 }
 func UpdateByPgxZ() {
 	pgxz.Update(db,
 		col.Team().
 			Title("测试团队-"+time.Now().String()),
-		"no=?", "cjh2vh9u4b8i8e3jnigg",
+		pgxz.Where("no=?", "cjhf63ctla5rq43743o0"),
 	)
 }
 
 func UpdateByGorm() {
-	gormdb.Model(model.Team{}).Where("no=?", "cjh2vh9u4b8i8e3jnigg").Updates(map[string]any{
+	gormdb.Model(model.Team{}).Where("no=?", "cjhf63ctla5rq43743o0").Updates(map[string]any{
 		"title":     "测试团队-" + time.Now().String(),
 		"update_at": time.Now(),
 	})

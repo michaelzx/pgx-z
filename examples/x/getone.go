@@ -16,7 +16,7 @@ func GetOneByPgx() {
 	}
 }
 func GetOneByPgxZ() {
-	_, err := pgxz.GetOne[model.DingDept](db, col.DingDept(), "id=?", 835586072)
+	_, err := pgxz.GetOne[model.DingDept](db, col.DingDept(), pgxz.Where("id=?", 835586072))
 	if err != nil {
 		panic(err)
 	}
