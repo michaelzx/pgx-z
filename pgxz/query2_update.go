@@ -8,10 +8,11 @@ import (
 	"time"
 )
 
-func Update(db *PgDb, updates ICol, whereSql string, whereArgs ...any) error {
-	whereSql = strings.TrimSpace(whereSql)
-	if whereSql == "" || len(whereArgs) == 0 {
-		return errors.New("whereSql or whereArgs must have value")
+// Update return RowsAffected and error
+func Update(db *PgDb, updates ICol, options ...IOption) (int64, error) {
+	og := optionsToGroup(options)
+	if len(og.wheres) == 0 {
+		return 0, wrapErr(errors.New("og.wheres must > 0 "))
 	}
 	if !updates.IsSet("delete_at") {
 		updates.Set("update_at", time.Now())
@@ -42,14 +43,19 @@ func Update(db *PgDb, updates ICol, whereSql string, whereArgs ...any) error {
 		kIdx++
 	}
 	// where
-	sql.WriteString(" where ")
+	whereSql, whereArgs := resolveWheres(og.wheres...)
 	for _, whereArg := range whereArgs {
 		sqlArgAppend(whereArg)
 		whereSql = strings.Replace(whereSql, "?", "$"+strconv.FormatInt(sqlArgIdx, 10), 1)
 	}
 	sql.WriteString(whereSql)
 	sql.WriteString(";")
+	// commit
+	debutPrint(&sql, sqlArgs)
+	result, err := db.Exec(context.TODO(), sql.String(), sqlArgs...)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), err
 
-	_, err := db.Exec(context.TODO(), sql.String(), sqlArgs...)
-	return err
 }

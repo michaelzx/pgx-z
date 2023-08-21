@@ -7,7 +7,6 @@ import (
 	"github.com/michaelzx/pgx-z/examples/internal/col"
 	"github.com/michaelzx/pgx-z/pgxz"
 	"os"
-	"time"
 )
 
 var db *pgxz.PgDb
@@ -24,9 +23,22 @@ func init() {
 
 }
 func main() {
-	_ = pgxz.Update(db,
-		col.User().
-			RealName("zxp"+time.Now().Format(time.RFC3339)),
-		"no=?", "cjdgoostla5k7f1kjc8g",
+	pgxz.DEBUG = true
+	count, err := pgxz.Delete(db,
+		col.Team(),
+		pgxz.Where("no=?", "cjhff44tla5smm5q3p00"),
 	)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("RowsAffected=", count)
+
+	count, err = pgxz.Delete(db,
+		col.Domain(),
+		pgxz.Where("tag=?", "xxx"),
+	)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("RowsAffected=", count)
 }

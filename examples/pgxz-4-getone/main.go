@@ -24,12 +24,28 @@ func init() {
 
 }
 func main() {
-	err := pgxz.Create(db, col.DingDept(&model.DingDept{
-		Id:    88888889,
-		Pid:   1,
-		Title: "测试部门",
-	}))
+	pgxz.DEBUG = true
+	user, err := pgxz.GetOne[model.Team](db, col.Team(),
+		pgxz.Where("no=?", "cjhffdstla5sno0495cg"),
+		pgxz.Where("title=?", "4"),
+	)
 	if err != nil {
 		panic(err)
 	}
+	fmt.Println(user)
+
+	user, err = pgxz.GetOne[model.Team](db, col.Team(),
+		pgxz.Where("no=?", "cjhffdstla5sno0495cg"),
+		pgxz.Where("title=?", "4"),
+	)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(user)
+
+	domain, err := pgxz.GetOne[model.Domain](db, col.Domain())
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(domain)
 }

@@ -8,7 +8,11 @@ import (
 	"strings"
 )
 
-func GetOne[T IModel](db *PgDb, col ICol, whereSql string, whereArgs ...any) (*T, error) {
+func GetOne[T IModel](db *PgDb, col ICol, options ...IOption) (*T, error) {
+	og := optionsToGroup(options)
+	if len(og.wheres) == 0 {
+		return nil, wrapErr(errors.New("wheres length must be > 0 "))
+	}
 	var t T
 	var sql strings.Builder
 	sqlArgs := make([]any, 0)
@@ -24,26 +28,21 @@ func GetOne[T IModel](db *PgDb, col ICol, whereSql string, whereArgs ...any) (*T
 	sql.WriteString("\"")
 
 	// where
-	if strings.TrimSpace(whereSql) == "" {
-		if col.HasKey("delete_at") {
-			sql.WriteString(" where delete_at is null")
-		}
-	} else {
-		sql.WriteString(" where ")
-		if col.HasKey("delete_at") {
-			whereSql = "delete_at is null and " + whereSql
-		}
-		for _, whereArg := range whereArgs {
-			sqlArgAppend(whereArg)
-			whereSql = strings.Replace(whereSql, "?", "$"+strconv.FormatInt(sqlArgIdx, 10), 1)
-		}
-		sql.WriteString(whereSql)
-		if !strings.Contains(whereSql, "limit") {
-			sql.WriteString(" limit 1")
-		}
+	if col.HasKey("delete_at") {
+		og.wheres = append(og.wheres, Where(" delete_at is null"))
+	}
+	whereSql, whereArgs := resolveWheres(og.wheres...)
+	for _, whereArg := range whereArgs {
+		sqlArgAppend(whereArg)
+		whereSql = strings.Replace(whereSql, "?", "$"+strconv.FormatInt(sqlArgIdx, 10), 1)
+	}
+	sql.WriteString(whereSql)
+	if !strings.Contains(whereSql, "limit") {
+		sql.WriteString(" limit 1")
 	}
 	sql.WriteString(";")
-
+	// commit
+	debutPrint(&sql, sqlArgs)
 	rows, _ := db.Query(context.TODO(), sql.String(), sqlArgs...)
 	row, err := pgx.CollectOneRow(rows, pgx.RowToAddrOfStructByNameLax[T])
 	switch {

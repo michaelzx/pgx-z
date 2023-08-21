@@ -13,6 +13,6 @@ type column struct {
 	TypeForDb   string  `db:"udt_name"`
 	TypeForGo   string  `db:"-"`
 	IsNullable  bool    `db:"is_nullable"`
-	Comment     string  `db:"comment"`
+	Comment     *string `db:"comment"`
 	Default     *string `db:"column_default"`
 }

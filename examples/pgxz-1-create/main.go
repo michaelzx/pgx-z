@@ -7,7 +7,9 @@ import (
 	"github.com/michaelzx/pgx-z/examples/internal/col"
 	"github.com/michaelzx/pgx-z/examples/internal/model"
 	"github.com/michaelzx/pgx-z/pgxz"
+	"github.com/rs/xid"
 	"os"
+	"time"
 )
 
 var db *pgxz.PgDb
@@ -24,9 +26,15 @@ func init() {
 
 }
 func main() {
-	user, err := pgxz.GetOne[model.User](db, col.User(), "no=?", "cjdgoostla5k7f1kjc8g")
+	pgxz.DEBUG = true
+	err := pgxz.Create(db, col.Team(&model.Team{
+		No:       xid.New().String(),
+		Title:    "测试部门" + time.Now().String(),
+		CreateAt: time.Now(),
+		UpdateAt: nil,
+		DeleteAt: nil,
+	}))
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(user)
 }

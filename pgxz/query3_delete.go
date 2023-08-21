@@ -8,14 +8,16 @@ import (
 	"time"
 )
 
-func Delete(db *PgDb, col ICol, whereSql string, whereArgs ...any) error {
-	whereSql = strings.TrimSpace(whereSql)
-	if whereSql == "" || len(whereArgs) == 0 {
-		return errors.New("whereSql or whereArgs must have value")
-	}
+// Delete return RowsAffected and error
+func Delete(db *PgDb, col ICol, options ...IOption) (int64, error) {
 	if col.HasKey("delete_at") {
 		col.Set("delete_at", time.Now())
-		return Update(db, col, whereSql, whereArgs...)
+		return Update(db, col, options...)
+	}
+	// real delete
+	og := optionsToGroup(options)
+	if len(og.wheres) == 0 {
+		return 0, wrapErr(errors.New("og.wheres must > 0 "))
 	}
 	var sql strings.Builder
 	sqlArgs := make([]any, 0)
@@ -24,19 +26,24 @@ func Delete(db *PgDb, col ICol, whereSql string, whereArgs ...any) error {
 		sqlArgs = append(sqlArgs, v)
 		sqlArgIdx++
 	}
-	// update what
+	// delete from
 	sql.WriteString("delete from ")
 	sql.WriteString("\"")
 	sql.WriteString(col.TableName())
 	sql.WriteString("\"")
 	// where
-	sql.WriteString(" where ")
+	whereSql, whereArgs := resolveWheres(og.wheres...)
 	for _, whereArg := range whereArgs {
 		sqlArgAppend(whereArg)
 		whereSql = strings.Replace(whereSql, "?", "$"+strconv.FormatInt(sqlArgIdx, 10), 1)
 	}
 	sql.WriteString(whereSql)
 	sql.WriteString(";")
-	_, err := db.Exec(context.TODO(), sql.String(), sqlArgs...)
-	return err
+	// commit
+	debutPrint(&sql, sqlArgs)
+	result, err := db.Exec(context.TODO(), sql.String(), sqlArgs...)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
 }

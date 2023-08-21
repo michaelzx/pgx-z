@@ -8,7 +8,9 @@ import (
 	"strings"
 )
 
-func GetAll[T IModel](db *PgDb, col ICol, whereSql string, whereArgs ...any) ([]T, error) {
+func GetAll[T IModel](db *PgDb, col ICol, options ...IOption) ([]T, error) {
+	og := optionsToGroup(options)
+	// how to limit
 	var t T
 	var sql strings.Builder
 	sqlArgs := make([]any, 0)
@@ -24,26 +26,29 @@ func GetAll[T IModel](db *PgDb, col ICol, whereSql string, whereArgs ...any) ([]
 	sql.WriteString("\"")
 
 	// where
-	if strings.TrimSpace(whereSql) == "" {
-		if col.HasKey("delete_at") {
-			sql.WriteString(" where delete_at is null")
-		}
-	} else {
-		sql.WriteString(" where ")
-		if col.HasKey("delete_at") {
-			whereSql = "delete_at is null and " + whereSql
-		}
+	if col.HasKey("delete_at") {
+		og.wheres = append(og.wheres, Where("delete_at is null"))
+	}
+	if len(og.wheres) > 0 {
+		whereSql, whereArgs := resolveWheres(og.wheres...)
 		for _, whereArg := range whereArgs {
 			sqlArgAppend(whereArg)
 			whereSql = strings.Replace(whereSql, "?", "$"+strconv.FormatInt(sqlArgIdx, 10), 1)
 		}
 		sql.WriteString(whereSql)
-		if !strings.Contains(whereSql, "limit") {
-			sql.WriteString(" limit 1")
-		}
+	}
+	if og.limit != nil {
+		sql.WriteString(og.limit.ToSql())
+	}
+	if og.offset != nil {
+		sql.WriteString(og.offset.ToSql())
+	}
+	if og.group != nil {
+		sql.WriteString(og.group.ToSql())
 	}
 	sql.WriteString(";")
-
+	// commit
+	debutPrint(&sql, sqlArgs)
 	rows, _ := db.Query(context.TODO(), sql.String(), sqlArgs...)
 	list, err := pgx.CollectRows[T](rows, pgx.RowToStructByNameLax[T])
 	switch {

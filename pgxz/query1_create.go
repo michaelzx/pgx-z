@@ -10,6 +10,8 @@ import (
 func CreateAndReturn[T IModel](db *PgDb, col ICol) (*T, error) {
 	sql, sqlArgs := createSqlAndArgs(col)
 	sql.WriteString(" RETURNING *;")
+	// commit
+	debutPrint(sql, sqlArgs)
 	rows, _ := db.Query(context.TODO(), sql.String(), sqlArgs...)
 	return pgx.CollectOneRow(rows, pgx.RowToAddrOfStructByNameLax[T])
 }
@@ -17,6 +19,8 @@ func CreateAndReturn[T IModel](db *PgDb, col ICol) (*T, error) {
 func Create(db *PgDb, col ICol) error {
 	sql, sqlArgs := createSqlAndArgs(col)
 	sql.WriteString(";")
+	// commit
+	debutPrint(sql, sqlArgs)
 	_, err := db.Exec(context.TODO(), sql.String(), sqlArgs...)
 	return err
 }
