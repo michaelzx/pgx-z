@@ -25,7 +25,7 @@ func GetAllByPgxZ() {
 		panic(err)
 	}
 	for i, row := range rows {
-		fmt.Println(i, row.Id, *row.Pid, *row.Title)
+		fmt.Println(i, row.Id, row.Pid, row.Title)
 	}
 }
 

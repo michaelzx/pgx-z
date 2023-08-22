@@ -37,7 +37,6 @@ func (p *PageResult[T]) doQuery(db *PgDb, selectSql, filterSql, orderSql string,
 	if err != nil {
 		return wrapErr(err)
 	}
-	fmt.Println("total->", total)
 	// 计算分页参数
 	p.Pagination.Compute(total)
 	// 获取分页数据
