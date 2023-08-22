@@ -42,7 +42,9 @@ func GetOne[T IModel](db *PgDb, col ICol, options ...IOption) (*T, error) {
 	}
 	sql.WriteString(";")
 	// commit
-	debutPrint(&sql, sqlArgs)
+	if DEBUG {
+		debutPrint(sql.String(), sqlArgs)
+	}
 	rows, _ := db.Query(context.TODO(), sql.String(), sqlArgs...)
 	row, err := pgx.CollectOneRow(rows, pgx.RowToAddrOfStructByNameLax[T])
 	switch {
