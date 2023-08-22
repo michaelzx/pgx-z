@@ -8,8 +8,8 @@ type IPageParams interface {
 }
 
 type PageParams struct {
-	PageNum  int64 `json:"page_num,omitempty"`
-	PageSize int64 `json:"page_size,omitempty"`
+	PageNum  int64 `json:",omitempty"`
+	PageSize int64 `json:",omitempty"`
 }
 
 func (p PageParams) GetPageNum() int64 {
