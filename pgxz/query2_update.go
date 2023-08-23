@@ -52,7 +52,7 @@ func Update(db *PgDb, updates ICol, options ...IOption) (int64, error) {
 	sql.WriteString(";")
 	// commit
 	if DEBUG {
-		debutPrint(sql.String(), sqlArgs)
+		debugPrint("update", sql.String(), sqlArgs)
 	}
 	result, err := db.Exec(context.TODO(), sql.String(), sqlArgs...)
 	if err != nil {

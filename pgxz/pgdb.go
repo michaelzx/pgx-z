@@ -2,6 +2,7 @@ package pgxz
 
 import (
 	"fmt"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/pkg/errors"
 )
@@ -21,13 +22,25 @@ func New(pool *pgxpool.Pool) *PgDb {
 		Pool: pool,
 	}
 }
-func debutPrint(sql string, args []any) {
-	fmt.Println("**************************")
-	fmt.Println("pgxz debug")
-	fmt.Println("**************************")
+func debugPrint(name, sql string, args any) {
+	fmt.Printf(">>>>>> pgxz debug %s <<<<<<<<\n", name)
+	fmt.Println("[---sql---]")
 	fmt.Println(sql)
-	for i, arg := range args {
-		fmt.Printf("$%d=%+v\n", i+1, arg)
+	fmt.Printf("%T\n", args)
+	switch realArgs := args.(type) {
+	case []any:
+		fmt.Println("[---case([]any)---]")
+		for i, arg := range realArgs {
+			fmt.Printf("[$%d]=%+v(%T)\n", i+1, arg, arg)
+		}
+	case pgx.NamedArgs:
+		fmt.Println("[---case(pgx.NamedArgs)---]")
+		for k, arg := range realArgs {
+			fmt.Printf("[@%s]=%+v(%T)\n", k, arg, arg)
+		}
+	default:
+		fmt.Println("[---case(default)---]")
+		fmt.Printf("%+v\n", args)
 	}
 	fmt.Println("**************************")
 }

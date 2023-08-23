@@ -23,34 +23,38 @@ func init() {
 }
 
 type UserPageRow struct {
-	No       string   `db:"no"`
-	RealName string   `db:"real_name"`
-	WorkNo   string   `db:"work_no"`
-	DeptName []string `db:"dept_name"`
+	No          string   `db:"no"`
+	DingId      string   `db:"ding_id"`
+	RealName    string   `db:"real_name"`
+	WorkNo      string   `db:"work_no"`
+	TeamNo      string   `db:"team_no"`
+	TeamTitle   *string  `db:"team_title"`
+	Leader      bool     `db:"leader"`
+	DomainScope []string `db:"domain_scope"`
+	AuthStatus  bool     `db:"auth_status"`
 }
+
 type UserPageParams struct {
 	pgxz.PageParams
-	DeptId    int64
-	Domain    string
-	StaffName string
+	TeamNo     string
+	Domain     string
+	StaffName  string
+	AuthStatus *bool
 }
 
 func main() {
 	pgxz.DEBUG = true
+	pageParams := UserPageParams{}
 	res, err := pgxz.Page[UserPageRow](db,
-		"no,real_name,work_no,array(select title from ding_dept where id = any(dept_ids)) as dept_name",
-		`from "user" where delete_at is null
-and (@DeptId=0 or @DeptId = any(dept_ids))
+		`"user".no,ding_id,real_name,work_no,team_no,team.title as team_title,leader,domain_scope,auth_status`,
+		`from "user" left join team on team.no="user".team_no
+where "user".delete_at is null
+and (@TeamNo='' or @TeamNo = team_no)
+and (@AuthStatus::boolean is null or @AuthStatus=auth_status)
 and (@Domain='' or @Domain=any(domain_scope))
 and (@StaffName='' or real_name ilike concat('%',@StaffName,'%'))`,
-		"order by work_no desc",
-		UserPageParams{
-			PageParams: pgxz.PageParams{
-				PageNum:  1,
-				PageSize: 10,
-			},
-			DeptId: 606633863,
-		},
+		"order by leader desc, work_no desc",
+		pageParams,
 	)
 	if err != nil {
 		panic(err)

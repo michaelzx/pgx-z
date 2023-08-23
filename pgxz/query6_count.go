@@ -32,7 +32,7 @@ func Count[T IModel](db *PgDb, whereSql string, whereArgs ...any) (int64, error)
 	sql.WriteString(";")
 	// commit
 	if DEBUG {
-		debutPrint(sql.String(), sqlArgs)
+		debugPrint("count", sql.String(), sqlArgs)
 	}
 	var c int64
 	err := db.QueryRow(context.TODO(), sql.String(), sqlArgs...).Scan(&c)

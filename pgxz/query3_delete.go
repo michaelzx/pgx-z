@@ -41,7 +41,7 @@ func Delete(db *PgDb, col ICol, options ...IOption) (int64, error) {
 	sql.WriteString(";")
 	// commit
 	if DEBUG {
-		debutPrint(sql.String(), sqlArgs)
+		debugPrint("delete", sql.String(), sqlArgs)
 	}
 	result, err := db.Exec(context.TODO(), sql.String(), sqlArgs...)
 	if err != nil {

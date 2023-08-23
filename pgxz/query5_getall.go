@@ -49,7 +49,7 @@ func GetAll[T IModel](db *PgDb, col ICol, options ...IOption) ([]T, error) {
 	sql.WriteString(";")
 	// commit
 	if DEBUG {
-		debutPrint(sql.String(), sqlArgs)
+		debugPrint("getall", sql.String(), sqlArgs)
 	}
 	rows, _ := db.Query(context.TODO(), sql.String(), sqlArgs...)
 	list, err := pgx.CollectRows[T](rows, pgx.RowToStructByNameLax[T])

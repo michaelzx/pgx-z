@@ -27,13 +27,14 @@ func structToNamedArgs(obj any) pgx.NamedArgs {
 	return data
 }
 func (p *PageResult[T]) doQuery(db *PgDb, selectSql, filterSql, orderSql string, pageParams IPageParams) error {
+	var err error
 	countSql := "select count(*) " + filterSql
 	namedArgs := structToNamedArgs(pageParams)
 	if DEBUG {
-		debutPrint(countSql, nil)
+		debugPrint("page.count", countSql, namedArgs)
 	}
 	var total int64
-	err := db.QueryRow(context.TODO(), countSql, namedArgs).Scan(&total)
+	err = db.QueryRow(context.TODO(), countSql, namedArgs).Scan(&total)
 	if err != nil {
 		return wrapErr(err)
 	}
@@ -44,7 +45,10 @@ func (p *PageResult[T]) doQuery(db *PgDb, selectSql, filterSql, orderSql string,
 		selectSql, filterSql, orderSql,
 		p.GetSkipRows(), p.PageSize,
 	)
-	rows, _ := db.Query(context.TODO(), pageSql, structToNamedArgs(pageParams))
+	if DEBUG {
+		debugPrint("page.list", pageSql, namedArgs)
+	}
+	rows, _ := db.Query(context.TODO(), pageSql, namedArgs)
 	list, err := pgx.CollectRows[T](rows, pgx.RowToStructByNameLax[T])
 	if err != nil {
 		return err

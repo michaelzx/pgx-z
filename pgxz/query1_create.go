@@ -12,7 +12,7 @@ func CreateAndReturn[T IModel](db *PgDb, col ICol) (*T, error) {
 	sql.WriteString(" RETURNING *;")
 	// commit
 	if DEBUG {
-		debutPrint(sql.String(), sqlArgs)
+		debugPrint("create", sql.String(), sqlArgs)
 	}
 	rows, _ := db.Query(context.TODO(), sql.String(), sqlArgs...)
 	return pgx.CollectOneRow(rows, pgx.RowToAddrOfStructByNameLax[T])
@@ -23,7 +23,7 @@ func Create(db *PgDb, col ICol) error {
 	sql.WriteString(";")
 	// commit
 	if DEBUG {
-		debutPrint(sql.String(), sqlArgs)
+		debugPrint("create", sql.String(), sqlArgs)
 	}
 	_, err := db.Exec(context.TODO(), sql.String(), sqlArgs...)
 	return err
