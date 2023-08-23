@@ -20,6 +20,11 @@ type Gen struct {
 	conn   *pgx.Conn
 	Tables []table
 }
+type JsonTagFunc func(dbname string) string
+
+var JsonTag JsonTagFunc = func(NameForDb string) string {
+	return ""
+}
 
 func New(cfg Config) {
 	g := &Gen{}
@@ -70,7 +75,7 @@ WHERE table_name=$1 order by ordinal_position`, t.NameForDb)
 		}
 		for colIdx, col := range cols {
 			cols[colIdx].NameForGo = strcase.ToCamel(col.NameForDb)
-			cols[colIdx].NameForJson = strcase.ToSnake(col.NameForDb)
+			cols[colIdx].NameForJson = JsonTag(col.NameForDb)
 			goType := pg2go(strings.TrimPrefix(col.TypeForDb, "_"))
 			if strings.HasPrefix(col.TypeForDb, "_") {
 				goType = "[]" + goType

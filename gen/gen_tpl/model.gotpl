@@ -15,7 +15,7 @@ package model
 // Domain mapped from table <{{.NameForDb}}>
 type {{.NameForGo}} struct {
 {{range .Columns }}
-    {{.NameForGo}} {{.TypeForGo}} `db:"{{.NameForDb}}" udt:"{{.TypeForDb}}" json:"{{.NameForJson}}"`           // {{.Comment}}
+    {{.NameForGo}} {{.TypeForGo}} `db:"{{.NameForDb}}" udt:"{{.TypeForDb}}" {{if .NameForJson}}json:"{{.NameForJson}}{{end}}"`           // {{.Comment}}
 {{- end}}
 }
 
