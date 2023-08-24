@@ -6,11 +6,12 @@ type IOption interface {
 	ToSql() string
 }
 type OptionGroup struct {
-	wheres []*whereOption
-	limit  *limitOption
-	offset *offsetOption
-	group  *groupOption
-	order  *orderOption
+	selectSql *selectOption
+	wheres    []*whereOption
+	limit     *limitOption
+	offset    *offsetOption
+	group     *groupOption
+	order     *orderOption
 }
 
 func optionsToGroup(options []IOption) *OptionGroup {
@@ -29,6 +30,8 @@ func optionsToGroup(options []IOption) *OptionGroup {
 			g.group = o
 		case *orderOption:
 			g.order = o
+		case *selectOption:
+			g.selectSql = o
 		}
 	}
 	return g

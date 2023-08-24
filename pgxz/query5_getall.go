@@ -8,10 +8,9 @@ import (
 	"strings"
 )
 
-func GetAll[T IModel](db *PgDb, col ICol, options ...IOption) ([]T, error) {
+func GetAll[T any](db *PgDb, col ICol, options ...IOption) ([]T, error) {
 	og := optionsToGroup(options)
 	// how to limit
-	var t T
 	var sql strings.Builder
 	sqlArgs := make([]any, 0)
 	var sqlArgIdx int64
@@ -20,9 +19,15 @@ func GetAll[T IModel](db *PgDb, col ICol, options ...IOption) ([]T, error) {
 		sqlArgIdx++
 	}
 	// select
-	sql.WriteString("select * from ")
+	if og.selectSql != nil {
+		sql.WriteString("select ")
+		sql.WriteString(og.selectSql.ToSql())
+		sql.WriteString(" from ")
+	} else {
+		sql.WriteString("select * from ")
+	}
 	sql.WriteString("\"")
-	sql.WriteString(t.TableName())
+	sql.WriteString(col.TableName())
 	sql.WriteString("\"")
 
 	// where
