@@ -46,6 +46,7 @@ func createSqlAndArgs(col ICol) (*strings.Builder, []any) {
 	// columns
 	sql.WriteString(" ( ")
 	kIdx := 0
+	delete(col.Mapping(), "id")
 	for k, v := range col.Mapping() {
 		if kIdx != 0 {
 			sql.WriteString(",")
