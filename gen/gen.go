@@ -50,7 +50,7 @@ func (g *Gen) getTables() {
 	rows, _ := g.conn.Query(context.TODO(), `--
 select table_name 
 from information_schema.tables 
-where table_schema='public'`)
+where table_schema='public' and left(table_name,3) <>'pg_'`)
 	tableRows, err := pgx.CollectRows(rows, pgx.RowToStructByNameLax[table])
 	if err != nil {
 		panic(err)
